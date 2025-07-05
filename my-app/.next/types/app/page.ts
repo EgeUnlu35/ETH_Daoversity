@@ -1,4 +1,4 @@
-// File: /Users/mateosauton/Matteo-Project/my-app/src/app/page.tsx
+// File: /Users/egeunlu/Projects/minikit-web3-example-2/my-app/src/app/page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
