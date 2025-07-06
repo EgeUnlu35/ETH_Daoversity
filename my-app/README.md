@@ -1,20 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DAOversity - A World ID Powered DAO Platform
 
-## Getting Started
+DAOversity is a modern, decentralized application that allows users to create, join, and participate in Decentralized Autonomous Organizations (DAOs). It leverages World ID to ensure a fair and Sybil-resistant governance model, where every user is a unique human, guaranteeing a "one person, one vote" system.
 
-First, run the development server:
+![DAOversity Screenshot](public/images/screenshot.png) 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Human-First Governance**: Integrates World ID to verify that every user is a real, unique individual, preventing bots and fake accounts.
+- **Wallet Authentication**: Securely connect with your Ethereum wallet to sign in and interact with the platform.
+- **Create & Join DAOs**: Users can create their own DAOs with custom rules or join existing ones.
+- **Proposal System**: Create and vote on proposals within a DAO.
+- **User Profiles**: View your activity, DAOs you've joined, and proposals you've voted on.
+- **Modern UI**: Built with Next.js, TypeScript, and shadcn/ui for a beautiful and responsive user experience.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Identity Protocol**: [World ID](https://worldcoin.org/world-id)
+- **Web3**: [Viem](httpss://viem.sh/), [NextAuth.js](https://next-auth.js.org/)
+
+## 🚀 Getting Started
+
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- [pnpm](https://pnpm.io/) (or npm/yarn)
+- A [World ID](https://developer.worldcoin.org/) application ID and action ID.
+
+### Installation & Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/EgeUnlu35/ETH_Daoversity.git
+    cd ETH_Daoversity/my-app
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Set up environment variables:**
+
+    Create a file named `.env.local` in the `my-app` directory and add the following variables. You need to get your `APP_ID` and `ACTION_ID` from the [Worldcoin Developer Portal](https://developer.worldcoin.org/).
+
+    ```env
+    # World ID Application ID from developer.worldcoin.org
+    NEXT_PUBLIC_WLD_APP_ID=
+    
+    # World ID Action ID from developer.worldcoin.org
+    NEXT_PUBLIC_WLD_ACTION_ID=
+
+    # NextAuth.js secret for session encryption (generate one here: https://generate-secret.vercel.app/)
+    NEXTAUTH_SECRET=
+
+    # The URL of your application
+    NEXTAUTH_URL=http://localhost:3000
+    ```
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. You will need to use a mobile simulator with the World App installed to test the World ID functionality.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/EgeUnlu35/ETH_Daoversity/issues).
+
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ## World ID Verification Setup
 

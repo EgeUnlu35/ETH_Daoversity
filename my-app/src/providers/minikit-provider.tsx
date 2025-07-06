@@ -3,10 +3,9 @@
 import { ReactNode, useEffect, useState, useRef } from "react";
 import { MiniKit } from "@worldcoin/minikit-js";
 
-// Access to window.MiniKit for direct debugging access
 declare global {
   interface Window {
-    MiniKit: typeof MiniKit & {
+    MiniKit?: {
       commands?: Record<string, any>;
       commandsAsync?: Record<string, any>;
       install?: (appId?: string) => void;
@@ -33,6 +32,8 @@ export default function MiniKitProvider({ children }: { children: ReactNode }) {
     let handleWalletAuthStart: Function | null = null;
     let handleWalletAuthComplete: Function | null = null;
     let handleWalletAuthError: Function | null = null;
+    let handleVerifyActionComplete: Function | null = null;
+    let handleVerifyActionError: Function | null = null;
 
     // Function to install MiniKit and ensure it's ready to use
     const initializeMiniKit = async () => {
@@ -62,7 +63,7 @@ export default function MiniKitProvider({ children }: { children: ReactNode }) {
         console.log("MiniKit installed, waiting for commands to be ready...");
 
         // Register event handlers for wallet auth
-        if (typeof window.MiniKit.on === "function") {
+        if (window.MiniKit && typeof window.MiniKit.on === "function") {
           // Register event handlers for wallet auth events
           handleWalletAuthStart = (data: any) => {
             console.log("Wallet auth started", data);
@@ -76,12 +77,23 @@ export default function MiniKitProvider({ children }: { children: ReactNode }) {
             console.error("Wallet auth error:", error);
           };
 
+          // New event handlers for verification
+          handleVerifyActionComplete = (payload: any) => {
+            console.log("MiniApp verify action completed:", payload);
+          };
+
+          handleVerifyActionError = (error: any) => {
+            console.error("MiniApp verify action error:", error);
+          };
+
           // Register these handlers
           window.MiniKit.on("wallet-auth-start", handleWalletAuthStart);
           window.MiniKit.on("wallet-auth-complete", handleWalletAuthComplete);
           window.MiniKit.on("wallet-auth-error", handleWalletAuthError);
+          window.MiniKit.on("miniapp-verify-action-complete", handleVerifyActionComplete);
+          window.MiniKit.on("miniapp-verify-action-error", handleVerifyActionError);
 
-          console.log("Wallet auth event handlers registered");
+          console.log("Wallet auth and verify action event handlers registered");
         } else {
           console.warn(
             "MiniKit.on is not a function, event handling may not work"
@@ -158,8 +170,8 @@ export default function MiniKitProvider({ children }: { children: ReactNode }) {
 
           // Check if running inside World App
           const isInstalledCheck =
-            typeof MiniKit.isInstalled === "function"
-              ? MiniKit.isInstalled()
+            window.MiniKit && typeof window.MiniKit.isInstalled === "function"
+              ? window.MiniKit.isInstalled()
               : false;
           console.log("Running inside World App:", isInstalledCheck);
 
@@ -205,6 +217,12 @@ export default function MiniKitProvider({ children }: { children: ReactNode }) {
         }
         if (handleWalletAuthError) {
           window.MiniKit.off("wallet-auth-error", handleWalletAuthError);
+        }
+        if (handleVerifyActionComplete) {
+          window.MiniKit.off("miniapp-verify-action-complete", handleVerifyActionComplete);
+        }
+        if (handleVerifyActionError) {
+          window.MiniKit.off("miniapp-verify-action-error", handleVerifyActionError);
         }
       }
 

@@ -9,8 +9,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TUTE App",
-  description: "Claim your TUTE tokens",
+  title: "DAOversity App",
+  description: "DAOversity App",
   viewport:
     "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover",
 };
@@ -22,6 +22,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <MiniKitProvider>
+
       <body className={inter.className}>
         <ErudaProvider>
           <SessionProvider>
@@ -29,6 +31,7 @@ export default function RootLayout({
           </SessionProvider>
         </ErudaProvider>
       </body>
+      </MiniKitProvider>
     </html>
   );
 }

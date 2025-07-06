@@ -17,9 +17,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Shield, Users, Vote, User, Home, Plus, Clock, ChevronRight, Upload, Settings } from "lucide-react";
 
+interface WalletAuthButtonProps {
+  onSuccess?: () => void;
+}
+
+interface VerifyButtonProps {
+  onVerificationSuccess: () => void;
+}
+
 // This would come from environment variables in a real app
 const APP_ID =
-  process.env.NEXT_PUBLIC_WORLDCOIN_APP_ID ||
+  process.env.NEXT_PUBLIC_WLD_APP_ID ||
   "app_9a73963d73efdf2e7d9472593dc9dffd";
 
 export default function AuthPage() {
@@ -31,9 +39,7 @@ export default function AuthPage() {
   const [claimCount, setClaimCount] = useState(0);
   const [transactionId, setTransactionId] = useState<string>("");
   const [isMinting, setIsMinting] = useState(false);
-  const [step, setStep] = useState<"login" | "verify" | "dashboard" | "wallet_connect" | "world_id_verify">("wallet_connect");
-  const [email, setEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
+  const [step, setStep] = useState<"dashboard" | "wallet_connect" | "world_id_verify">("wallet_connect");
 
   const [societies, setSocieties] = useState([
     {
@@ -165,7 +171,7 @@ export default function AuthPage() {
   }, [isConfirmed, tuteClaimed]);
 
   // Handle wallet connection success
-  const handleWalletConnected = () => {
+  const handleWalletAuthSuccess = () => {
     setWalletConnected(true);
     console.log("Wallet connected");
     setStep("world_id_verify");
@@ -173,9 +179,9 @@ export default function AuthPage() {
 
   // Handle verification success
   const handleVerificationSuccess = () => {
-    console.log("Verification success callback triggered in TuteApp");
+    console.log("World ID verification success callback triggered");
     setVerified(true);
-    setStep("login");
+    setStep("dashboard");
   };
 
   // Handle claim success
@@ -204,20 +210,8 @@ export default function AuthPage() {
     };
   }, [tuteClaimed, timeRemaining]);
 
-  const handleLogin = () => {
-    if (email) {
-      setStep("dashboard");
-    }
-  };
-
-  const handleVerification = () => {
-    if (verificationCode) {
-      setStep("dashboard");
-    }
-  };
-
   const joinSociety = (societyId: number) => {
-    setSocieties(societies.map((s) => (s.id === societyId ? { ...s, isJoined: true, members: s.members + 1 } : s)));
+    setSocieties(societies.map((s: any) => (s.id === societyId ? { ...s, isJoined: true, members: s.members + 1 } : s)));
   };
 
   const createSociety = (societyData: any) => {
@@ -250,9 +244,12 @@ export default function AuthPage() {
     setCurrentView("dao-detail");
   };
 
-  const vote = (proposalId: number, voteType: "for" | "against") => {
+  const vote = (
+    proposalId: number,
+    voteType: "for" | "against",
+  ) => {
     setProposals(
-      proposals.map((p) =>
+      proposals.map((p: any) =>
         p.id === proposalId
           ? {
               ...p,
@@ -275,7 +272,7 @@ export default function AuthPage() {
             DAOversity
           </h1>
           <p className="text-gray-600">Connect your wallet to get started with DAOversity.</p>
-          <WalletAuthButton onWalletConnected={handleWalletConnected} />
+          <WalletAuthButton onSuccess={handleWalletAuthSuccess} />
         </div>
       </div>
     );
@@ -289,101 +286,7 @@ export default function AuthPage() {
             DAOversity
           </h1>
           <p className="text-gray-600">Verify your identity with World ID to access the DAO app.</p>
-          <VerifyButton onSuccess={handleVerificationSuccess} />
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "login") {
-    return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">
-              DAOversity
-            </h1>
-            <div className="flex justify-center">
-              <div className="bg-gradient-to-br from-green-600 to-emerald-600 p-3 rounded-full">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <Card className="bg-transparent border-none shadow-none">
-            <CardHeader className="text-center">
-              <CardTitle>Welcome</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <Button
-                onClick={handleLogin}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
-              >
-                Continue
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "verify") {
-    return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">
-              DAOversity
-            </h1>
-            <div className="flex justify-center">
-              <div className="bg-gradient-to-br from-green-600 to-emerald-600 p-3 rounded-full">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-            </div>
-          </div>
-          <Card className="bg-transparent border-none shadow-none">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-600" />
-                Verify Your Identity
-              </CardTitle>
-              <CardDescription>We've sent a verification code to {email}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="code">Verification Code</Label>
-                <Input
-                  id="code"
-                  placeholder="Enter 6-digit code"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  maxLength={6}
-                />
-              </div>
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <strong>Demo:</strong> Enter any 6-digit code to continue
-                </p>
-              </div>
-              <Button
-                onClick={handleVerification}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
-              >
-                Verify & Continue
-              </Button>
-            </CardContent>
-          </Card>
+          <VerifyButton onVerificationSuccess={handleVerificationSuccess} />
         </div>
       </div>
     );
@@ -409,6 +312,23 @@ export default function AuthPage() {
   );
 }
 
+interface DashboardProps {
+  currentView: "home" | "daos" | "proposals" | "profile" | "create-dao" | "dao-detail" | "proposal-detail";
+  setCurrentView: (view: "home" | "daos" | "proposals" | "profile" | "create-dao" | "dao-detail" | "proposal-detail") => void;
+  societies: any[];
+  setSocieties: React.Dispatch<React.SetStateAction<any[]>>;
+  proposals: any[];
+  setProposals: React.Dispatch<React.SetStateAction<any[]>>;
+  selectedSociety: any;
+  setSelectedSociety: React.Dispatch<React.SetStateAction<any>>;
+  selectedProposal: any;
+  setSelectedProposal: React.Dispatch<React.SetStateAction<any>>;
+  joinSociety: (societyId: number) => void;
+  createSociety: (societyData: any) => void;
+  createProposal: (proposalData: any) => void;
+  vote: (proposalId: number, voteType: "for" | "against") => void;
+}
+
 function Dashboard({
   currentView,
   setCurrentView,
@@ -424,7 +344,7 @@ function Dashboard({
   createSociety,
   createProposal,
   vote,
-}: any) {
+}: DashboardProps) {
   if (currentView === "create-dao") {
     return <CreateDAOFlow onCreateSociety={createSociety} onBack={() => setCurrentView("home")} />;
   }
@@ -433,7 +353,7 @@ function Dashboard({
     return (
       <DAODetailPage
         society={selectedSociety}
-        proposals={proposals.filter((p) => p.societyId === selectedSociety?.id)}
+        proposals={proposals.filter((p: any) => p.societyId === selectedSociety?.id)}
         onBack={() => setCurrentView("daos")}
         onCreateProposal={createProposal}
         onJoin={() => joinSociety(selectedSociety.id)}
@@ -471,7 +391,7 @@ function Dashboard({
             proposals={proposals}
             onCreateDAO={() => setCurrentView("create-dao")}
             onJoinDAO={joinSociety}
-            onViewDAO={(society) => {
+            onViewDAO={(society: any) => {
               setSelectedSociety(society);
               setCurrentView("dao-detail");
             }}
@@ -482,7 +402,7 @@ function Dashboard({
           <DAOsScreen
             societies={societies}
             onJoinDAO={joinSociety}
-            onViewDAO={(society) => {
+            onViewDAO={(society: any) => {
               setSelectedSociety(society);
               setCurrentView("dao-detail");
             }}
@@ -493,7 +413,7 @@ function Dashboard({
           <ProposalsScreen
             societies={societies}
             proposals={proposals}
-            onViewProposal={(proposal) => {
+            onViewProposal={(proposal: any) => {
               setSelectedProposal(proposal);
               setCurrentView("proposal-detail");
             }}
@@ -549,10 +469,18 @@ function Dashboard({
   );
 }
 
-function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }: any) {
-  const joinedSocieties = societies.filter((s) => s.isJoined);
-  const suggestedSocieties = societies.filter((s) => !s.isJoined);
-  const featuredProposals = proposals.filter((p) => joinedSocieties.some((s) => s.id === p.societyId)).slice(0, 3);
+interface HomeScreenProps {
+  societies: any[];
+  proposals: any[];
+  onCreateDAO: () => void;
+  onJoinDAO: (societyId: number) => void;
+  onViewDAO: (society: any) => void;
+}
+
+function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }: HomeScreenProps) {
+  const joinedSocieties = societies.filter((s: any) => s.isJoined);
+  const suggestedSocieties = societies.filter((s: any) => !s.isJoined);
+  const featuredProposals = proposals.filter((p: any) => joinedSocieties.some((s: any) => s.id === p.societyId)).slice(0, 3);
 
   return (
     <div className="space-y-6">
@@ -587,7 +515,7 @@ function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }:
       <div>
         <h3 className="text-lg font-semibold mb-3">Suggested DAOs</h3>
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {suggestedSocieties.map((society) => (
+          {suggestedSocieties.map((society: any) => (
             <Card
               key={society.id}
               className="min-w-[200px] border-green-100 bg-gradient-to-br from-white to-green-50/30 cursor-pointer"
@@ -604,7 +532,7 @@ function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }:
                 <Button
                   size="sm"
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
-                  onClick={(e) => {
+                  onClick={(e: any) => {
                     e.stopPropagation();
                     onJoinDAO(society.id);
                   }}
@@ -622,7 +550,7 @@ function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }:
         <div>
           <h3 className="text-lg font-semibold mb-3">Featured Proposals</h3>
           <div className="space-y-3">
-            {featuredProposals.map((proposal) => (
+            {featuredProposals.map((proposal: any) => (
               <Card key={proposal.id} className="border-green-100 bg-gradient-to-br from-white to-green-50/30">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-2">
@@ -654,9 +582,15 @@ function HomeScreen({ societies, proposals, onCreateDAO, onJoinDAO, onViewDAO }:
   );
 }
 
-function DAOsScreen({ societies, onJoinDAO, onViewDAO }: any) {
-  const joinedSocieties = societies.filter((s) => s.isJoined);
-  const exploreSocieties = societies.filter((s) => !s.isJoined);
+interface DAOsScreenProps {
+  societies: any[];
+  onJoinDAO: (societyId: number) => void;
+  onViewDAO: (society: any) => void;
+}
+
+function DAOsScreen({ societies, onJoinDAO, onViewDAO }: DAOsScreenProps) {
+  const joinedSocieties = societies.filter((s: any) => s.isJoined);
+  const exploreSocieties = societies.filter((s: any) => !s.isJoined);
 
   return (
     <div className="space-y-6">
@@ -665,7 +599,7 @@ function DAOsScreen({ societies, onJoinDAO, onViewDAO }: any) {
         <div>
           <h2 className="text-lg font-semibold mb-4">My DAOs</h2>
           <div className="space-y-3">
-            {joinedSocieties.map((society) => (
+            {joinedSocieties.map((society: any) => (
               <Card
                 key={society.id}
                 className="border-green-100 bg-gradient-to-br from-white to-green-50/30 cursor-pointer"
@@ -705,7 +639,7 @@ function DAOsScreen({ societies, onJoinDAO, onViewDAO }: any) {
       <div>
         <h2 className="text-lg font-semibold mb-4">Explore New DAOs</h2>
         <div className="space-y-3">
-          {exploreSocieties.map((society) => (
+          {exploreSocieties.map((society: any) => (
             <Card
               key={society.id}
               className="border-green-100 bg-gradient-to-br from-white to-green-50/30 cursor-pointer"
@@ -727,7 +661,7 @@ function DAOsScreen({ societies, onJoinDAO, onViewDAO }: any) {
                       <Button
                         size="sm"
                         className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
-                        onClick={(e) => {
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           onJoinDAO(society.id);
                         }}
@@ -746,12 +680,19 @@ function DAOsScreen({ societies, onJoinDAO, onViewDAO }: any) {
   );
 }
 
-function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: any) {
-  const joinedSocieties = societies.filter((s) => s.isJoined);
+interface ProposalsScreenProps {
+  societies: any[];
+  proposals: any[];
+  onViewProposal: (proposal: any) => void;
+  onVote: (proposalId: number, voteType: "for" | "against") => void;
+}
+
+function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: ProposalsScreenProps) {
+  const joinedSocieties = societies.filter((s: any) => s.isJoined);
 
   // Group proposals by category
-  const proposalsByCategory = proposals.reduce((acc, proposal) => {
-    const society = societies.find((s) => s.id === proposal.societyId);
+  const proposalsByCategory = proposals.reduce((acc: any, proposal: any) => {
+    const society = societies.find((s: any) => s.id === proposal.societyId);
     const category = society?.category || "Other";
     if (!acc[category]) {
       acc[category] = [];
@@ -761,9 +702,9 @@ function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: any) 
   }, {});
 
   // Filter to only show proposals from joined DAOs
-  const myProposalsByCategory = Object.keys(proposalsByCategory).reduce((acc, category) => {
-    const categoryProposals = proposalsByCategory[category].filter((p) =>
-      joinedSocieties.some((s) => s.id === p.societyId),
+  const myProposalsByCategory = Object.keys(proposalsByCategory).reduce((acc: any, category: string) => {
+    const categoryProposals = proposalsByCategory[category].filter((p: any) =>
+      joinedSocieties.some((s: any) => s.id === p.societyId),
     );
     if (categoryProposals.length > 0) {
       acc[category] = categoryProposals;
@@ -782,11 +723,11 @@ function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: any) 
           </CardContent>
         </Card>
       ) : (
-        Object.entries(myProposalsByCategory).map(([category, categoryProposals]) => (
+        Object.entries(myProposalsByCategory).map(([category, categoryProposals]: [string, any]) => (
           <div key={category}>
             <h3 className="text-md font-semibold mb-3 text-green-700">{category}</h3>
             <div className="space-y-3">
-              {categoryProposals.map((proposal) => (
+              {(categoryProposals as any[]).map((proposal: any) => (
                 <Card
                   key={proposal.id}
                   className="border-green-100 bg-gradient-to-br from-white to-green-50/30 cursor-pointer"
@@ -804,12 +745,12 @@ function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: any) 
                       >
                         {proposal.hasVoted ? "You Voted" : "Vote Now"}
                       </Badge>
-                      <div className="flex items-center gap-1 text-xs bg-green-100 text-black px-2 py-1 rounded">
-                        <Clock className="h-3 w-3" />
-                        {proposal.timeLeft}
-                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-1 text-xs bg-green-100 text-black px-2 py-1 rounded">
+                      <Clock className="h-3 w-3" />
+                      {proposal.timeLeft}
+                    </div>
+                    <div className="flex justify-between items-center mt-3">
                       <div className="flex gap-4 text-xs">
                         <span className="text-green-600">👍 {proposal.votes.for}</span>
                         <span className="text-red-600">👎 {proposal.votes.against}</span>
@@ -827,9 +768,14 @@ function ProposalsScreen({ societies, proposals, onViewProposal, onVote }: any) 
   );
 }
 
-function ProfileScreen({ societies, proposals }: any) {
-  const joinedSocieties = societies.filter((s) => s.isJoined);
-  const votedProposals = proposals.filter((p) => p.hasVoted);
+interface ProfileScreenProps {
+  societies: any[];
+  proposals: any[];
+}
+
+function ProfileScreen({ societies, proposals }: ProfileScreenProps) {
+  const joinedSocieties = societies.filter((s: any) => s.isJoined);
+  const votedProposals = proposals.filter((p: any) => p.hasVoted);
 
   return (
     <div className="space-y-4">
@@ -857,7 +803,7 @@ function ProfileScreen({ societies, proposals }: any) {
         </CardHeader>
         <CardContent className="p-4 pt-0">
           <div className="space-y-2">
-            {joinedSocieties.map((society) => (
+            {joinedSocieties.map((society: any) => (
               <div key={society.id} className="flex items-center gap-3">
                 <img src={society.logo || "/placeholder.svg"} alt={society.name} className="h-8 w-8 rounded-full" />
                 <div className="flex-1">
@@ -877,7 +823,7 @@ function ProfileScreen({ societies, proposals }: any) {
         </CardHeader>
         <CardContent className="p-4 pt-0">
           <div className="space-y-2">
-            {votedProposals.map((proposal) => (
+            {votedProposals.map((proposal: any) => (
               <div key={proposal.id} className="flex justify-between items-center">
                 <div className="flex-1">
                   <p className="font-medium text-sm">{proposal.title}</p>
@@ -915,7 +861,12 @@ function ProfileScreen({ societies, proposals }: any) {
   );
 }
 
-function CreateDAOFlow({ onCreateSociety, onBack }: any) {
+interface CreateDAOFlowProps {
+  onCreateSociety: (societyData: any) => void;
+  onBack: () => void;
+}
+
+function CreateDAOFlow({ onCreateSociety, onBack }: CreateDAOFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -986,7 +937,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter DAO name"
                 />
               </div>
@@ -997,7 +948,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                   className="w-full p-3 border border-gray-300 rounded-md resize-none"
                   rows={3}
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Describe your DAO's purpose"
                 />
               </div>
@@ -1009,7 +960,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                 <input
                   type="checkbox"
                   checked={formData.worldIdBound}
-                  onChange={(e) => setFormData({ ...formData, worldIdBound: e.target.checked })}
+                  onChange={(e: any) => setFormData({ ...formData, worldIdBound: e.target.checked })}
                   className="h-4 w-4"
                 />
               </div>
@@ -1040,7 +991,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                       name="joinType"
                       value="open"
                       checked={formData.joinType === "open"}
-                      onChange={(e) => setFormData({ ...formData, joinType: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, joinType: e.target.value })}
                     />
                     <span>Open to all verified humans</span>
                   </label>
@@ -1050,7 +1001,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                       name="joinType"
                       value="request"
                       checked={formData.joinType === "request"}
-                      onChange={(e) => setFormData({ ...formData, joinType: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, joinType: e.target.value })}
                     />
                     <span>Request-based (owner must approve)</span>
                   </label>
@@ -1065,7 +1016,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                       name="votingModel"
                       value="one-human-one-vote"
                       checked={formData.votingModel === "one-human-one-vote"}
-                      onChange={(e) => setFormData({ ...formData, votingModel: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, votingModel: e.target.value })}
                     />
                     <span>1 human = 1 vote (via World ID)</span>
                   </label>
@@ -1075,7 +1026,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                       name="votingModel"
                       value="token-weighted"
                       checked={formData.votingModel === "token-weighted"}
-                      onChange={(e) => setFormData({ ...formData, votingModel: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, votingModel: e.target.value })}
                     />
                     <span>Token-weighted (optionally issue ERC20)</span>
                   </label>
@@ -1100,7 +1051,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                 <input
                   type="checkbox"
                   checked={formData.moderationEnabled}
-                  onChange={(e) => setFormData({ ...formData, moderationEnabled: e.target.checked })}
+                  onChange={(e: any) => setFormData({ ...formData, moderationEnabled: e.target.checked })}
                   className="h-4 w-4"
                 />
               </div>
@@ -1112,7 +1063,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                       className="w-full p-3 border border-gray-300 rounded-md resize-none"
                       rows={3}
                       value={formData.bannedKeywords}
-                      onChange={(e) => setFormData({ ...formData, bannedKeywords: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, bannedKeywords: e.target.value })}
                       placeholder="Enter banned words, separated by commas"
                     />
                   </div>
@@ -1121,7 +1072,7 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
                     <select
                       className="w-full p-3 border border-gray-300 rounded-md"
                       value={formData.moderationMode}
-                      onChange={(e) => setFormData({ ...formData, moderationMode: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, moderationMode: e.target.value })}
                     >
                       <option value="soft-block">Soft Block</option>
                       <option value="auto-delete">Auto Delete</option>
@@ -1193,7 +1144,15 @@ function CreateDAOFlow({ onCreateSociety, onBack }: any) {
   );
 }
 
-function DAODetailPage({ society, proposals, onBack, onCreateProposal, onJoin }: any) {
+interface DAODetailPageProps {
+  society: any;
+  proposals: any[];
+  onBack: () => void;
+  onCreateProposal: (proposalData: any) => void;
+  onJoin: () => void;
+}
+
+function DAODetailPage({ society, proposals, onBack, onCreateProposal, onJoin }: DAODetailPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-green-100">
@@ -1264,7 +1223,7 @@ function DAODetailPage({ society, proposals, onBack, onCreateProposal, onJoin }:
             )}
           </div>
           <div className="space-y-3">
-            {proposals.map((proposal) => (
+            {proposals.map((proposal: any) => (
               <Card key={proposal.id} className="border-green-100 bg-gradient-to-br from-white to-green-50/30">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-2">
@@ -1294,7 +1253,13 @@ function DAODetailPage({ society, proposals, onBack, onCreateProposal, onJoin }:
   );
 }
 
-function ProposalDetailPage({ proposal, onBack, onVote }: any) {
+interface ProposalDetailPageProps {
+  proposal: any;
+  onBack: () => void;
+  onVote: (proposalId: number, voteType: "for" | "against") => void;
+}
+
+function ProposalDetailPage({ proposal, onBack, onVote }: ProposalDetailPageProps) {
   const [selectedOption, setSelectedOption] = useState("");
 
   const handleVote = () => {
@@ -1336,7 +1301,7 @@ function ProposalDetailPage({ proposal, onBack, onVote }: any) {
               <CardTitle className="text-base">Cast Your Vote</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {proposal.options.map((option, index) => (
+              {proposal.options.map((option: any, index: any) => (
                 <label
                   key={index}
                   className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-green-50"
@@ -1346,7 +1311,7 @@ function ProposalDetailPage({ proposal, onBack, onVote }: any) {
                     name="vote"
                     value={option}
                     checked={selectedOption === option}
-                    onChange={(e) => setSelectedOption(e.target.value)}
+                    onChange={(e: any) => setSelectedOption(e.target.value)}
                     className="h-4 w-4"
                   />
                   <span className="font-medium">{option}</span>
